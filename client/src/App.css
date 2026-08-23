@@ -911,6 +911,39 @@
   font-weight: 600; 
   padding: 0; 
 }
+
+.upload-handler {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.upload-button {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--green);
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.upload-button:hover {
+	color: #255b4d;
+}
+
+.upload-button:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+.upload-handler .error-message {
+	font-size: 11px;
+}
+
 .publish-button { 
   border: 0; 
   border-radius: 5px; 
@@ -2144,6 +2177,36 @@
 
 .button-secondary:active {
 	transform: scale(0.98);
+}
+
+.account-delete {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	margin-top: 18px;
+	padding-top: 16px;
+	border-top: 1px solid var(--line);
+}
+
+.button-danger {
+	border: 1px solid #d85c50;
+	border-radius: 5px;
+	background: transparent;
+	color: #c34e43;
+	padding: 9px 13px;
+	font-size: 12px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.button-danger:hover {
+	background: #fff1ef;
+}
+
+.button-danger:disabled {
+	opacity: 0.6;
+	cursor: wait;
 }
 
 /* Edit Profile Responsive */

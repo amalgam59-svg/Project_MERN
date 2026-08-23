@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { FiX } from 'react-icons/fi'
 import * as userService from '../services/userService.js'
+import UploadHandler from './UploadHandler.jsx'
+import AccountDelete from './AccountDelete.jsx'
 
 function EditProfileModal({ isOpen, onClose, profile, onUpdated }) {
 	const [formData, setFormData] = useState({
@@ -155,6 +157,10 @@ const validateForm = () => {
 								/>
 							</div>
 						)}
+						<UploadHandler label="Upload profile photo" onUpload={async (file) => {
+							const url = await userService.uploadProfileImage(file)
+							setFormData((previous) => ({ ...previous, avatar: url }))
+						}} />
 					</div>
 
 					<div className="form-group">
@@ -220,6 +226,7 @@ const validateForm = () => {
 						</button>
 						<button type="button" className="button-secondary" onClick={onClose}>Cancel</button>
 					</div>
+					<AccountDelete />
 				</form>
 			</div>
 		</div>

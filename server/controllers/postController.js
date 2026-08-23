@@ -1,5 +1,24 @@
 import Post from '../models/Post.js'
 import User from '../models/User.js'
+import cloudinary from '../config/cloudinary.js'
+
+export const uploadPostImage = async (req, res) => {
+	try {
+		if (!req.file) return res.status(400).json({ success: false, message: 'An image file is required' })
+
+		const result = await new Promise((resolve, reject) => {
+			const stream = cloudinary.uploader.upload_stream({ folder: 'nook/posts', resource_type: 'image' }, (error, uploadResult) => {
+				if (error) reject(error)
+				else resolve(uploadResult)
+			})
+			stream.end(req.file.buffer)
+		})
+
+		return res.status(201).json({ success: true, url: result.secure_url })
+	} catch (error) {
+		return res.status(500).json({ success: false, message: 'Failed to upload post image' })
+	}
+}
 
 const AUTHOR_FIELDS = 'name handle avatar'
 

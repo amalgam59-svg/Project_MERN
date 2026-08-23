@@ -47,6 +47,7 @@ const mapLegacyPost = (post) => ({
 function Home() {
 	const [posts, setPosts] = useState([])
 	const [postText, setPostText] = useState('')
+	const [postImage, setPostImage] = useState('')
 	const [suggestions, setSuggestions] = useState([])
 	const [isLoginOpen, setIsLoginOpen] = useState(false)
 	const [isLoadingPosts, setIsLoadingPosts] = useState(true)
@@ -94,12 +95,13 @@ function Home() {
 
 	const publishPost = async (event) => {
 		event.preventDefault()
-		if (!postText.trim() || !requireLogin()) return
+		if ((!postText.trim() && !postImage) || !requireLogin()) return
 
 		try {
-			const newPost = await postService.createPost({ text: postText.trim() })
+			const newPost = await postService.createPost({ text: postText.trim(), image: postImage })
 			setPosts((current) => [newPost, ...current])
 			setPostText('')
+			setPostImage('')
 		} catch (err) {
 			console.error('Failed to publish post:', err)
 		}
@@ -142,6 +144,8 @@ function Home() {
 					<Feed 
 						postText={postText}
 						setPostText={setPostText}
+						postImage={postImage}
+						setPostImage={setPostImage}
 						publishPost={publishPost}
 						posts={posts}
 						toggleLike={toggleLike}

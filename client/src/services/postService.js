@@ -6,8 +6,11 @@ const authHeader = () => {
 }
 
 const request = async (path, options = {}) => {
+	const headers = options.body instanceof FormData
+		? { ...authHeader(), ...options.headers }
+		: { 'Content-Type': 'application/json', ...authHeader(), ...options.headers }
 	const response = await fetch(`${API_BASE_URL}${path}`, {
-		headers: { 'Content-Type': 'application/json', ...authHeader(), ...options.headers },
+		headers,
 		...options,
 	})
 
@@ -17,6 +20,13 @@ const request = async (path, options = {}) => {
 	}
 
 	return data
+}
+
+export const uploadPostImage = async (file) => {
+	const formData = new FormData()
+	formData.append('image', file)
+	const data = await request('/posts/image', { method: 'POST', body: formData, headers: {} })
+	return data.url
 }
 
 export const getPosts = async () => {

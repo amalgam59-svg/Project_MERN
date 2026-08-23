@@ -1,4 +1,44 @@
 import User from '../models/User.js'
+import Post from '../models/Post.js'
+import Comment from '../models/Comment.js'
+import cloudinary from '../config/cloudinary.js'
+
+export const deleteAccount = async (req, res) => {
+	try {
+		const userId = req.user._id
+		await Promise.all([
+			Post.deleteMany({ author: userId }),
+			Comment.deleteMany({ author: userId }),
+			User.updateMany(
+				{ $or: [{ followers: userId }, { following: userId }] },
+				{ $pull: { followers: userId, following: userId } },
+			),
+		])
+		await User.deleteOne({ _id: userId })
+
+		return res.status(200).json({ success: true, message: 'Account deleted successfully' })
+	} catch (error) {
+		return res.status(500).json({ success: false, message: 'Failed to delete account' })
+	}
+}
+
+export const uploadProfileImage = async (req, res) => {
+	try {
+		if (!req.file) return res.status(400).json({ success: false, message: 'An image file is required' })
+
+		const result = await new Promise((resolve, reject) => {
+			const stream = cloudinary.uploader.upload_stream({ folder: 'nook/profiles', resource_type: 'image' }, (error, uploadResult) => {
+				if (error) reject(error)
+				else resolve(uploadResult)
+			})
+			stream.end(req.file.buffer)
+		})
+
+		return res.status(201).json({ success: true, url: result.secure_url })
+	} catch (error) {
+		return res.status(500).json({ success: false, message: 'Failed to upload profile image' })
+	}
+}
 
 const sanitizeUser = (user) => ({
 	id: user._id,

@@ -6,8 +6,11 @@ const authHeader = () => {
 }
 
 const request = async (path, options = {}) => {
+	const headers = options.body instanceof FormData
+		? { ...authHeader(), ...options.headers }
+		: { 'Content-Type': 'application/json', ...authHeader(), ...options.headers }
 	const response = await fetch(`${API_BASE_URL}${path}`, {
-		headers: { 'Content-Type': 'application/json', ...authHeader(), ...options.headers },
+		headers,
 		...options,
 	})
 
@@ -17,6 +20,13 @@ const request = async (path, options = {}) => {
 	}
 
 	return data
+}
+
+export const uploadProfileImage = async (file) => {
+	const formData = new FormData()
+	formData.append('image', file)
+	const data = await request('/users/profile/image', { method: 'POST', body: formData, headers: {} })
+	return data.url
 }
 
 export const getProfile = async () => {
@@ -32,6 +42,12 @@ export const updateProfile = async (updates) => {
 
 	localStorage.setItem('user', JSON.stringify(data.user))
 	return data.user
+}
+
+export const deleteAccount = async () => {
+	await request('/users/profile', { method: 'DELETE' })
+	localStorage.removeItem('token')
+	localStorage.removeItem('user')
 }
 
 export const getSuggestions = async () => {
