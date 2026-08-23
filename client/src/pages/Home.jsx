@@ -1,18 +1,7 @@
 import { useEffect, useState } from 'react'
-import {
-	FiBell,
-	FiBookmark,
-	FiChevronDown,
-	FiHome,
-	FiImage,
-	FiSearch,
-	FiSend,
-	FiSettings,
-	FiUsers,
-} from 'react-icons/fi'
+import { FiBell } from 'react-icons/fi'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
-import PostCard from '../components/PostCard.jsx'
 import SideNav from '../components/SideNav.jsx'
 import RightColumn from '../components/RightColumn.jsx'
 import Feed from '../components/Feed.jsx'
@@ -48,7 +37,7 @@ function Home() {
 	const [posts, setPosts] = useState([])
 	const [postText, setPostText] = useState('')
 	const [postImage, setPostImage] = useState('')
-	const [suggestions, setSuggestions] = useState([])
+	const [suggestions, setSuggestions] = useState(() => localStorage.getItem('token') ? [] : fallbackSuggestions)
 	const [isLoginOpen, setIsLoginOpen] = useState(false)
 	const [isLoadingPosts, setIsLoadingPosts] = useState(true)
 
@@ -76,8 +65,6 @@ function Home() {
 					console.error('Failed to load suggestions, using local backup:', err)
 					setSuggestions(fallbackSuggestions)
 				})
-		} else {
-			setSuggestions(fallbackSuggestions)
 		}
 	}, [])
 
@@ -118,6 +105,10 @@ function Home() {
 		}
 	}
 
+	const handlePostDeleted = (postId) => {
+		setPosts((current) => current.filter((post) => post.id !== postId))
+	}
+
 	const currentUser = getCurrentUser()
 
 	if (isLoadingPosts) {
@@ -150,6 +141,7 @@ function Home() {
 						posts={posts}
 						toggleLike={toggleLike}
 						currentUser={currentUser}
+						onPostDeleted={handlePostDeleted}
 					/>
 
 					<RightColumn suggestions={suggestions} toggleFollow={toggleFollow} />

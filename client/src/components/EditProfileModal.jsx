@@ -1,38 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FiX } from 'react-icons/fi'
 import * as userService from '../services/userService.js'
 import UploadHandler from './UploadHandler.jsx'
 import AccountDelete from './AccountDelete.jsx'
 
+const profileFormData = (profile) => ({
+	name: profile?.name || '',
+	handle: profile?.handle || '',
+	avatar: profile?.avatar || '',
+	bio: profile?.bio || '',
+	location: profile?.location || '',
+	website: profile?.website || '',
+	joinDate: profile?.joinDate || '',
+})
+
 function EditProfileModal({ isOpen, onClose, profile, onUpdated }) {
-	const [formData, setFormData] = useState({
-		name: '',
-		handle: '',
-		avatar: '',
-		bio: '',
-		location: '',
-		website: '',
-		joinDate: '',
-	})
+	const [formData, setFormData] = useState(() => profileFormData(profile))
 	const [errors, setErrors] = useState({})
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [submitError, setSubmitError] = useState(null)
-
-	useEffect(() => {
-		if (isOpen && profile) {
-			setFormData({
-				name: profile.name,
-				handle: profile.handle,
-				avatar: profile.avatar,
-				bio: profile.bio,
-				location: profile.location,
-				website: profile.website,
-				joinDate: profile.joinDate,
-			})
-			setErrors({})
-			setSubmitError(null)
-		}
-	}, [isOpen, profile])
 
 	if (!isOpen) return null
 

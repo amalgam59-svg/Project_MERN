@@ -8,7 +8,6 @@ import * as userService from '../services/userService.js'
 
 export default function EditProfile() {
 	const navigate = useNavigate()
-	const [isLoginOpen, setIsLoginOpen] = useState(false)
 	const [formData, setFormData] = useState({
 		name: '',
 		handle: '',
@@ -100,7 +99,7 @@ const validateForm = () => {
 	if (isLoading) {
 		return (
 			<div className="app-shell">
-				<Navbar onLoginClick={() => setIsLoginOpen(true)} />
+				<Navbar onLoginClick={() => navigate('/login')} />
 				<Loader fullPage text="Loading profile…" />
 			</div>
 		)
@@ -108,7 +107,7 @@ const validateForm = () => {
 
 	return (
 		<div className="app-shell">
-			<Navbar onLoginClick={() => setIsLoginOpen(true)} />
+			<Navbar onLoginClick={() => navigate('/login')} />
 
 			<div className="edit-profile-container">
 				<div className="edit-profile-card">

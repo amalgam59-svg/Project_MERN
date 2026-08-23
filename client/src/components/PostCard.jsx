@@ -1,14 +1,20 @@
 import { useState } from 'react'
-import { FiBookmark, FiHeart, FiMessageCircle, FiMoreHorizontal, FiShare2 } from 'react-icons/fi'
+import { FiBookmark, FiEdit2, FiHeart, FiMessageCircle, FiShare2, FiTrash2 } from 'react-icons/fi'
 import * as postService from '../services/postService.js'
 import { formatRelativeTime } from '../utils/formatTime.js'
 
-function PostCard({ post, onLike }) {
+function PostCard({ post, onLike, currentUser, onDeleted }) {
 	const [showComments, setShowComments] = useState(false)
 	const [comments, setComments] = useState([])
 	const [commentsLoaded, setCommentsLoaded] = useState(false)
 	const [commentText, setCommentText] = useState('')
 	const [commentCount, setCommentCount] = useState(post.comments)
+	const [isEditing, setIsEditing] = useState(false)
+	const [displayText, setDisplayText] = useState(post.text || '')
+	const [editText, setEditText] = useState(post.text || '')
+	const [isDeleting, setIsDeleting] = useState(false)
+
+	const isPostOwner = currentUser?.id === (post.author.id || post.author._id)
 
 	const loadComments = async () => {
 		try {
@@ -39,6 +45,42 @@ function PostCard({ post, onLike }) {
 		}
 	}
 
+	const handleUpdatePost = async (e) => {
+		e.preventDefault()
+		if (!editText.trim() && !post.image) return
+
+		try {
+			await postService.updatePost(post.id, { text: editText.trim(), image: post.image })
+			setDisplayText(editText.trim())
+			setIsEditing(false)
+		} catch (err) {
+			console.error('Failed to update post:', err)
+		}
+	}
+
+	const handleDeletePost = async () => {
+		if (!window.confirm('Delete this post permanently?')) return
+
+		setIsDeleting(true)
+		try {
+			await postService.deletePost(post.id)
+			onDeleted?.(post.id)
+		} catch (err) {
+			console.error('Failed to delete post:', err)
+			setIsDeleting(false)
+		}
+	}
+
+	const handleDeleteComment = async (commentId) => {
+		try {
+			await postService.deleteComment(commentId)
+			setComments((current) => current.filter((comment) => comment.id !== commentId))
+			setCommentCount((current) => Math.max(current - 1, 0))
+		} catch (err) {
+			console.error('Failed to delete comment:', err)
+		}
+	}
+
 	return (
 		<article className="post-card">
 			<div className="post-top">
@@ -47,9 +89,17 @@ function PostCard({ post, onLike }) {
 					<strong>{post.author.name}</strong>
 					<span>{post.author.handle} <i>·</i> {formatRelativeTime(post.createdAt)}</span>
 				</div>
-				<button className="more-button" aria-label="More options"><FiMoreHorizontal /></button>
+				{isPostOwner && <div className="post-owner-actions">
+					<button className="more-button" onClick={() => setIsEditing((current) => !current)} aria-label="Edit post"><FiEdit2 /></button>
+					<button className="more-button" onClick={handleDeletePost} disabled={isDeleting} aria-label="Delete post"><FiTrash2 /></button>
+				</div>}
 			</div>
-			<p className="post-text">{post.text}</p>
+			{isEditing ? (
+				<form className="post-edit-form" onSubmit={handleUpdatePost}>
+					<textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows="3" />
+					<div><button type="submit">Save</button><button type="button" onClick={() => setIsEditing(false)}>Cancel</button></div>
+				</form>
+			) : <p className="post-text">{displayText}</p>}
 			{post.image && <img className="post-image" src={post.image} alt="Post visual" />}
 			<div className="post-actions">
 				<button className={post.liked ? 'liked' : ''} onClick={() => onLike(post.id)}>
@@ -69,6 +119,7 @@ function PostCard({ post, onLike }) {
 								<strong>{comment.author.name}</strong>
 								<span>{comment.text}</span>
 							</div>
+							{currentUser?.id === (comment.author.id || comment.author._id) && <button type="button" className="comment-delete-button" onClick={() => handleDeleteComment(comment.id)} aria-label="Delete comment"><FiTrash2 /></button>}
 						</div>
 					))}
 					<form className="comment-form" onSubmit={handleAddComment}>

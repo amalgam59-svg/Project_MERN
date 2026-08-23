@@ -61,7 +61,8 @@ export const followUser = async (handle) => {
 }
 
 // Maps a raw User document from the API to the shape the profile UI renders
-export const mapUserToProfile = (user) => ({
+export const mapUserToProfile = (user, postCount = 0) => ({
+	id: user.id || user._id,
 	name: user.name,
 	handle: user.handle,
 	avatar: user.avatar || '',
@@ -71,7 +72,7 @@ export const mapUserToProfile = (user) => ({
 	joinDate: user.createdAt
 		? `Joined ${new Date(user.createdAt).toLocaleString('default', { month: 'long', year: 'numeric' })}`
 		: '',
-	posts: 0,
+	posts: postCount,
 	followers: user.followers?.length || 0,
 	following: user.following?.length || 0,
 })

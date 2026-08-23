@@ -1,30 +1,43 @@
 import { useEffect, useState } from 'react'
-import { FiBell, FiMapPin, FiCalendar, FiLink } from 'react-icons/fi'
+import { FiMapPin, FiCalendar, FiLink } from 'react-icons/fi'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import Loader from '../components/Loader.jsx'
 import LoginModal from '../components/LoginModal.jsx'
 import EditProfileModal from '../components/EditProfileModal.jsx'
+import PostCard from '../components/PostCard.jsx'
 import * as userService from '../services/userService.js'
+import * as postService from '../services/postService.js'
 
 function Profile() {
 	const [isLoginOpen, setIsLoginOpen] = useState(false)
 	const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
 	const [profile, setProfile] = useState(null)
-	const [isLoading, setIsLoading] = useState(true)
+	const [posts, setPosts] = useState([])
+	const [isLoading, setIsLoading] = useState(() => Boolean(localStorage.getItem('token')))
 	const [error, setError] = useState(null)
 
 	useEffect(() => {
-		if (!localStorage.getItem('token')) {
-			setIsLoading(false)
-			return
-		}
+		if (!localStorage.getItem('token')) return
 
 		userService.getProfile()
-			.then((user) => setProfile(userService.mapUserToProfile(user)))
+			.then((user) => postService.getUserPosts(user.handle).then((userPosts) => ({ user, userPosts })))
+			.then(({ user, userPosts }) => {
+				setProfile(userService.mapUserToProfile(user, userPosts.length))
+				setPosts(userPosts)
+			})
 			.catch((err) => setError(err.message))
 			.finally(() => setIsLoading(false))
 	}, [])
+
+	const toggleLike = async (postId) => {
+		try {
+			const updatedPost = await postService.toggleLike(postId)
+			setPosts((current) => current.map((post) => post.id === postId ? updatedPost : post))
+		} catch (err) {
+			setError(err.message)
+		}
+	}
 
 	if (isLoading) {
 		return (
@@ -120,19 +133,22 @@ function Profile() {
 					</div>
 
 					<div className="profile-feed">
-						<div className="empty-state">
-							<p>No posts yet</p>
-						</div>
+						{posts.length > 0 ? posts.map((post) => (
+							<PostCard key={post.id} post={post} onLike={toggleLike} currentUser={profile} onDeleted={(postId) => setPosts((current) => current.filter((item) => item.id !== postId))} />
+						)) : (
+							<div className="empty-state"><p>No posts yet</p></div>
+						)}
 					</div>
 				</div>
 			</div>
 
 			<LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
 			<EditProfileModal
+				key={`${isEditProfileOpen}-${profile.id}`}
 				isOpen={isEditProfileOpen}
 				profile={profile}
 				onClose={() => setIsEditProfileOpen(false)}
-				onUpdated={(updatedUser) => setProfile(userService.mapUserToProfile(updatedUser))}
+				onUpdated={(updatedUser) => setProfile(userService.mapUserToProfile(updatedUser, posts.length))}
 			/>
 			<Footer />
 		</div>

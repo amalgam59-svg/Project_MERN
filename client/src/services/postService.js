@@ -47,6 +47,18 @@ export const createPost = async ({ text, image }) => {
 	return data.post
 }
 
+export const updatePost = async (postId, updates) => {
+	const data = await request(`/posts/${postId}`, {
+		method: 'PUT',
+		body: JSON.stringify(updates),
+	})
+	return data.post
+}
+
+export const deletePost = async (postId) => {
+	await request(`/posts/${postId}`, { method: 'DELETE' })
+}
+
 export const toggleLike = async (postId) => {
 	const data = await request(`/posts/${postId}/like`, { method: 'POST' })
 	return data.post

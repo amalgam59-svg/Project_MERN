@@ -5,7 +5,7 @@ function Navbar({ onLoginClick }) {
 	const handleLoginClick = () => {
 		try {
 			onLoginClick()
-		} catch (error) {
+		} catch {
 			// Fallback to login page if modal fails
 			window.location.href = '/login'
 		}
