@@ -1268,6 +1268,48 @@
 	background: #255b4d;
 }
 
+.social-login {
+	margin-top: 18px;
+}
+
+.social-divider {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--muted);
+	font-size: 12px;
+}
+
+.social-divider::before,
+.social-divider::after {
+	content: '';
+	height: 1px;
+	flex: 1;
+	background: var(--line);
+}
+
+.social-login-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	margin-top: 12px;
+	padding: 11px;
+	border: 1px solid var(--line);
+	border-radius: 5px;
+	background: var(--paper);
+	color: var(--ink);
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.social-login-button:hover {
+	border-color: var(--green);
+	background: #f9fdfb;
+}
+
 /* Modal styling */
 
 .modal-overlay {

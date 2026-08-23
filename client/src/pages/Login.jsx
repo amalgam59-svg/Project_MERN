@@ -1,15 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import Register from '../components/Register.jsx'
 import ResetPassword from '../components/ResetPassword.jsx'
+import SocialLogin from '../components/SocialLogin.jsx'
 import * as authService from '../services/authService.js'
 
 function Login() {
 	const [view, setView] = useState('login') // 'login', 'register', 'reset'
 	const [formData, setFormData] = useState({ email: '', password: '' })
-	const [error, setError] = useState(null)
+	const [error, setError] = useState(() => new URLSearchParams(window.location.search).get('socialError'))
 	const [isSubmitting, setIsSubmitting] = useState(false)
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search)
+		const socialToken = params.get('socialToken')
+		const socialError = params.get('socialError')
+
+		if (socialToken) {
+			authService.completeSocialLogin(socialToken)
+			window.location.replace('/')
+		} else if (socialError) {
+			window.history.replaceState({}, '', '/login')
+		}
+	}, [])
 
 	const handleChange = (e) => {
 		const { id, value } = e.target
@@ -51,6 +65,7 @@ function Login() {
 							{isSubmitting ? 'Logging in...' : 'Login'}
 						</button>
 					</form>
+					<SocialLogin />
 					<div className="login-links">
 						<button type="button" onClick={() => setView('reset')} className="link-button">
 							Forgot Password?

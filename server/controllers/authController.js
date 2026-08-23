@@ -2,10 +2,18 @@ import User from '../models/User.js'
 import generateToken from '../utils/generateToken.js'
 import crypto from 'node:crypto'
 import nodemailer from 'nodemailer'
+import jwt from 'jsonwebtoken'
+import { OAuth2Client } from 'google-auth-library'
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
 
 const hashResetToken = (token) => crypto.createHash('sha256').update(token).digest('hex')
+
+const getGoogleClient = () => new OAuth2Client(
+	process.env.GOOGLE_CLIENT_ID,
+	process.env.GOOGLE_CLIENT_SECRET,
+	process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
+)
 
 const sendResetEmail = async (email, resetUrl) => {
 	if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
@@ -112,6 +120,55 @@ export const login = async (req, res) => {
 		return res.status(200).json({ success: true, token, user: sanitizeUser(user) })
 	} catch (error) {
 		return res.status(500).json({ success: false, message: 'Login failed', error: error.message })
+	}
+}
+
+export const googleLogin = (req, res) => {
+	if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+		return res.status(503).json({ success: false, message: 'Google login is not configured' })
+	}
+
+	const state = jwt.sign({ nonce: crypto.randomBytes(16).toString('hex') }, process.env.JWT_SECRET, { expiresIn: '10m' })
+	const authorizationUrl = getGoogleClient().generateAuthUrl({
+		access_type: 'online',
+		scope: ['openid', 'email', 'profile'],
+		state,
+		prompt: 'select_account',
+	})
+
+	return res.redirect(authorizationUrl)
+}
+
+export const googleCallback = async (req, res) => {
+	const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
+	try {
+		if (!req.query.code || !req.query.state) throw new Error('Missing Google OAuth response')
+		jwt.verify(req.query.state, process.env.JWT_SECRET)
+
+		const googleClient = getGoogleClient()
+		const { tokens } = await googleClient.getToken(req.query.code)
+		const ticket = await googleClient.verifyIdToken({
+			idToken: tokens.id_token,
+			audience: process.env.GOOGLE_CLIENT_ID,
+		})
+		const profile = ticket.getPayload()
+		if (!profile?.email || !profile.email_verified) throw new Error('Google account email is not verified')
+
+		let user = await User.findOne({ email: profile.email.toLowerCase() })
+		if (!user) {
+			user = await User.create({
+				name: profile.name || profile.email.split('@')[0],
+				email: profile.email,
+				password: crypto.randomBytes(32).toString('hex'),
+				handle: await generateUniqueHandle(profile.name || profile.email.split('@')[0]),
+				avatar: profile.picture || '',
+			})
+		}
+
+		const token = generateToken(user._id)
+		return res.redirect(`${clientUrl}/login?socialToken=${encodeURIComponent(token)}`)
+	} catch (error) {
+		return res.redirect(`${clientUrl}/login?socialError=${encodeURIComponent('Google login could not be completed')}`)
 	}
 }
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { FiX } from 'react-icons/fi'
 import Register from './Register.jsx'
 import ResetPassword from './ResetPassword.jsx'
+import SocialLogin from './SocialLogin.jsx'
 import * as authService from '../services/authService.js'
 
 function LoginModal({ isOpen, onClose }) {
@@ -77,6 +78,7 @@ function LoginModal({ isOpen, onClose }) {
 								{isSubmitting ? 'Logging in…' : 'Login'}
 							</button>
 						</form>
+						<SocialLogin />
 						<div className="login-links">
 							<button type="button" onClick={() => setView('reset')} className="link-button">
 								Forgot Password?
