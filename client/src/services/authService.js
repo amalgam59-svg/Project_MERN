@@ -36,6 +36,20 @@ export const login = async ({ email, password }) => {
 	return data.user
 }
 
+export const requestPasswordReset = async (email) => {
+	return request('/auth/forgot-password', {
+		method: 'POST',
+		body: JSON.stringify({ email }),
+	})
+}
+
+export const resetPassword = async ({ token, password }) => {
+	return request('/auth/reset-password', {
+		method: 'POST',
+		body: JSON.stringify({ token, password }),
+	})
+}
+
 export const logout = async () => {
 	const token = localStorage.getItem('token')
 
