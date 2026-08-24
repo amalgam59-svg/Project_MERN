@@ -1,12 +1,7 @@
 import {
-	FiBell,
-	FiBookmark,
 	FiChevronDown,
 	FiHome,
-	FiSearch,
 	FiSend,
-	FiSettings,
-	FiUsers,
 } from 'react-icons/fi'
 
 function SideNav() {
@@ -19,13 +14,9 @@ function SideNav() {
         </div>
         <nav className="side-nav" aria-label="Main navigation">
             <a className="active" href="#feed"><FiHome /> Home</a>
-            <a href="#explore"><FiSearch /> Explore</a>
-            <a href="#notifications"><FiBell /> Notifications <b>3</b></a>
-            <a href="#saved"><FiBookmark /> Saved</a>
-            <a href="#people"><FiUsers /> People</a>
         </nav>
         <button className="new-post-button" onClick={() => document.querySelector('.composer textarea')?.focus()}><FiSend /> New post</button>
-        <div className="side-footer"><a href="#settings"><FiSettings /> Settings</a><span>© 2024 nook</span></div>
+        <div className="side-footer"><span>© 2024 nook</span></div>
     </aside>
     )
 }

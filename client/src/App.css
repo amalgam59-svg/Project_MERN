@@ -1492,13 +1492,50 @@
 .fallback-button:hover {
 	background: #255b4d;
 }
-.link-button:hover,
+
+.login-links {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 18px;
+}
+
+.link-button {
+	width: 100%;
+	border: 0;
+	border-radius: 5px;
+	background: var(--green);
+	color: white;
+	padding: 12px;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 6px 14px #2f6f5d26;
+}
+
+.link-button:hover {
+	background: #255b4d;
+	color: white;
+	text-decoration: none;
+}
+
 .back-button:hover {
-	color: #255b4d;
-	text-decoration: underline;
+	background: #255b4d;
+	color: white;
+	text-decoration: none;
 }
 
 .back-button {
+	width: 100%;
+	border: 0;
+	border-radius: 5px;
+	background: var(--green);
+	color: white;
+	padding: 12px;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 6px 14px #2f6f5d26;
 	margin-bottom: 20px;
 	text-align: left;
 }

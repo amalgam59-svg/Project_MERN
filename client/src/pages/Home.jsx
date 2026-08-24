@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { FiBell } from 'react-icons/fi'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import SideNav from '../components/SideNav.jsx'
@@ -109,12 +108,16 @@ function Home() {
 		setPosts((current) => current.filter((post) => post.id !== postId))
 	}
 
+	const focusComposer = () => {
+		document.querySelector('.composer textarea')?.focus()
+	}
+
 	const currentUser = getCurrentUser()
 
 	if (isLoadingPosts) {
 		return (
 			<div className="app-shell">
-				<Navbar onLoginClick={() => setIsLoginOpen(true)} />
+				<Navbar onLoginClick={() => setIsLoginOpen(true)} onNewPost={focusComposer} />
 				<Loader fullPage text="Loading your feed…" />
 			</div>
 		)
@@ -122,11 +125,10 @@ function Home() {
 
 	return (
 		<div className="app-shell">
-			<Navbar onLoginClick={() => setIsLoginOpen(true)} />
+			<Navbar onLoginClick={() => setIsLoginOpen(true)} onNewPost={focusComposer} />
 			<div className="page-wrap">
 				<header className="mobile-header">
 					<span className="brand-mark">N</span><span>nook</span>
-					<button className="icon-button" aria-label="Notifications"><FiBell /></button>
 				</header>
 
 				<main className="dashboard-grid">

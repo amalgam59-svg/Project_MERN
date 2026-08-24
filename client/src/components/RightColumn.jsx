@@ -12,7 +12,6 @@ function RightColumn({ suggestions, toggleFollow }) {
             <section className="suggestions">
                 <div className="section-title">
                     <h2>Who to follow</h2>
-                    <a href="#discover">See all</a>
                 </div>
                 {suggestions.map((person) => (
                     <div className="suggestion-row" key={person.handle}>
@@ -30,7 +29,6 @@ function RightColumn({ suggestions, toggleFollow }) {
             <section className="trending">
                 <div className="section-title">
                     <h2>Trending today</h2>
-                    <a href="#trends">View more</a>
                 </div>
                 <div className="trend">
                     <span>01</span>
