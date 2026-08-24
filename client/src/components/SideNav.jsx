@@ -16,7 +16,7 @@ function SideNav() {
             <a className="active" href="#feed"><FiHome /> Home</a>
         </nav>
         <button className="new-post-button" onClick={() => document.querySelector('.composer textarea')?.focus()}><FiSend /> New post</button>
-        <div className="side-footer"><span>© 2024 nook</span></div>
+        <div className="side-footer"><span>© 2026 nook</span></div>
     </aside>
     )
 }
